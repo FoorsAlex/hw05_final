@@ -1,13 +1,14 @@
-from django import forms
-from django.contrib.auth import get_user_model
-from django.test import Client, TestCase, override_settings
-from django.urls import reverse
-from django.conf import settings
 import shutil
 import tempfile
-from django.core.files.uploadedfile import SimpleUploadedFile
 
-from ..models import Group, Post, Comment, Follow
+from django import forms
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
+
+from ..models import Comment, Follow, Group, Post
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -260,7 +261,8 @@ class TestFollow(TestCase):
 
     def test_follow_index(self):
         response_1 = self.authorized_client.get(reverse('posts:follow_index'))
-        response_2 = self.authorized_client_auth.get(reverse('posts:follow_index'))
+        response_2 = self.authorized_client_auth.get(reverse(
+            'posts:follow_index'))
         post_obj_1 = response_1.context['page_obj'][0]
         post_obj_2 = response_2.context['page_obj']
         self.assertTrue(post_obj_1)

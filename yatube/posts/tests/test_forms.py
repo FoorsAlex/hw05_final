@@ -2,11 +2,11 @@ import http
 import tempfile
 
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
 
-from ..models import Group, Post, Comment
+from ..models import Comment, Group, Post
 
 User = get_user_model()
 
@@ -46,7 +46,9 @@ class CreateFormTests(TestCase):
         )
         cls.reverse_login = reverse('users:login')
         cls.reverse_create = reverse('posts:post_create')
-        cls.reverse_add_comment = reverse('posts:add_comment', kwargs={'post_id': cls.post.pk})
+        cls.reverse_add_comment = reverse(
+            'posts:add_comment', kwargs={'post_id': cls.post.pk}
+        )
 
     def test_create_authorized_user(self):
         """Валидная форма создает запись в Post."""
@@ -151,7 +153,8 @@ class CreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, http.HTTPStatus.OK)
-        reverse_url = (self.reverse_login + '?next=' + self.reverse_add_comment)
+        reverse_url = (self.reverse_login + '?next=' +
+                       self.reverse_add_comment)
         self.assertRedirects(response, reverse_url)
         self.assertEqual(Comment.objects.count(), tasks_count)
         self.assertFalse(
