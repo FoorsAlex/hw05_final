@@ -153,8 +153,9 @@ class CreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, http.HTTPStatus.OK)
-        reverse_url = (self.reverse_login + '?next=' +
-                       self.reverse_add_comment)
+        reverse_url = (
+                self.reverse_login + '?next=' + self.reverse_add_comment
+        )
         self.assertRedirects(response, reverse_url)
         self.assertEqual(Comment.objects.count(), tasks_count)
         self.assertFalse(
