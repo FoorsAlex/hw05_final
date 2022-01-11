@@ -3,6 +3,7 @@ import tempfile
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models.fields.files import ImageFieldFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -55,7 +56,7 @@ class CreateFormTests(TestCase):
 
         tasks_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст',
+            'text': 'Тестовый текст1',
             'author': self.user_auth,
             'group': self.group.id,
             'image': self.post.image
@@ -75,18 +76,17 @@ class CreateFormTests(TestCase):
                 text=form_data['text'],
                 author=form_data['author'],
                 group=form_data['group'],
-                image=form_data['image']
             ).exists()
         )
         fields = {
-            'text': self.post.text,
+            'text': Post.objects.get(author=self.user_auth, id=2).text,
             'author': self.post.author,
             'group': self.post.group.id,
-            'image': self.post.image
         }
         for field, expected_field in fields.items():
             with self.subTest(field=field):
                 self.assertEqual(form_data[field], expected_field)
+        self.assertIsInstance(self.post.image, ImageFieldFile)
 
     def test_edit(self):
         """Валидная форма редактирует запись в Post."""
@@ -159,6 +159,27 @@ class CreateFormTests(TestCase):
         self.assertRedirects(response, reverse_url)
         self.assertEqual(Comment.objects.count(), tasks_count)
         self.assertFalse(
+            Comment.objects.filter(
+                text=form_data['text'],
+            ).exists()
+        )
+
+    def test_create_comment_auth_user(self):
+        """Проверяет может-ли гость комментировать
+        Зочем? Пусть будет."""
+
+        tasks_count = Comment.objects.count()
+        form_data = {
+            'text': 'Тестовый коммент',
+        }
+        response = self.authorized_user.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.pk}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, http.HTTPStatus.OK)
+        self.assertEqual(Comment.objects.count(), tasks_count+1)
+        self.assertTrue(
             Comment.objects.filter(
                 text=form_data['text'],
             ).exists()

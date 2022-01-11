@@ -52,25 +52,32 @@ class NotStaticUrlTest(TestCase):
         )
         cls.urls_all_access = {
             '/': http.HTTPStatus.OK,
-            '/group/test_slug/': http.HTTPStatus.OK,
-            '/profile/author/': http.HTTPStatus.OK,
-            '/posts/1/': http.HTTPStatus.OK,
+            f'/group/{cls.group.slug}/': http.HTTPStatus.OK,
+            f'/profile/{cls.auth_user.username}/': http.HTTPStatus.OK,
+            f'/posts/{cls.post.id}/': http.HTTPStatus.OK,
             'unexisting_page/': http.HTTPStatus.NOT_FOUND,
-            '/posts/1/edit/': http.HTTPStatus.FOUND,
-            '/create/': http.HTTPStatus.FOUND
+            f'/posts/{cls.post.id}/edit/': http.HTTPStatus.FOUND,
+            '/create/': http.HTTPStatus.FOUND,
+            '/follow/': http.HTTPStatus.FOUND,
+            f'/profile/{cls.auth_user.username}/follow/': http.HTTPStatus.FOUND,
+            f'/profile/{cls.auth_user.username}/unfollow/': http.HTTPStatus.FOUND,
+            f'/posts/{cls.post.id}/comment': http.HTTPStatus.FOUND
+
         }
         cls.templates_authorized = {
             '/create/': 'posts/create_post.html',
             '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            '/profile/author/': 'posts/profile.html',
-            '/posts/1/': 'posts/post_detail.html',
+            f'/group/{cls.group.slug}/': 'posts/group_list.html',
+            f'/profile/{cls.auth_user.username}/': 'posts/profile.html',
+            f'/posts/{cls.post.id}/': 'posts/post_detail.html',
+
+
         }
         cls.templates_guest = {
             '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            '/profile/author/': 'posts/profile.html',
-            '/posts/1/': 'posts/post_detail.html',
+            f'/group/{cls.group.slug}/': 'posts/group_list.html',
+            f'/profile/{cls.auth_user.username}/': 'posts/profile.html',
+            f'/posts/{cls.post.id}/': 'posts/post_detail.html',
         }
 
     def setUp(self):
@@ -88,7 +95,7 @@ class NotStaticUrlTest(TestCase):
         for url, expected_value in self.urls_all_access.items():
             with self.subTest(url=url):
                 self.assertEqual(
-                    self.guest_client.get(url).status_code, expected_value)
+                    self.guest_client.get(url).status_code, expected_value, url)
 
     def test_url_limit_availability(self):
         """Проверка доступа к редактированнию
