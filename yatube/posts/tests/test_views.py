@@ -105,7 +105,8 @@ class TestPages(TestCase):
         }
         for reverse_name, kwargs in pages_kwargs.items():
             with self.subTest(reverse_name=reverse_name):
-                if reverse_name == 'posts:index' or reverse_name == 'posts:follow_index':
+                if reverse_name == 'posts:index'\
+                        or reverse_name == 'posts:follow_index':
                     response = self.client_authorized_user.get(
                         reverse(reverse_name))
                 else:
@@ -204,7 +205,8 @@ class PaginatorViewsTest(TestCase):
         }
         for reverse_url, kwargs in reverse_list.items():
             with self.subTest(reverse_url=reverse_url):
-                if reverse_url == 'posts:profile' or reverse_url == 'posts:group_list':
+                if reverse_url == 'posts:profile'\
+                        or reverse_url == 'posts:group_list':
                     response = self.client_authorized.get(
                         reverse(reverse_url, kwargs={kwargs[0]: kwargs[1]})
                     )
@@ -213,7 +215,10 @@ class PaginatorViewsTest(TestCase):
                         reverse(reverse_url)
                     )
                 self.assertEqual(
-                    len(response.context['page_obj']), count_pages, reverse_url)
+                    len(response.context['page_obj']),
+                    count_pages,
+                    reverse_url
+                )
 
     def test_second_page_contains_three_records(self):
         """Проверка работы паджинатора 2-я страница"""
@@ -227,9 +232,11 @@ class PaginatorViewsTest(TestCase):
         }
         for reverse_url, kwargs in reverse_list.items():
             with self.subTest(reverse_url=reverse_url):
-                if reverse_url == 'posts:profile' or reverse_url == 'posts:group_list':
+                if reverse_url == 'posts:profile'\
+                        or reverse_url == 'posts:group_list':
                     response = self.client_authorized.get(
-                        reverse(reverse_url, kwargs={kwargs[0]: kwargs[1]}) + '?page=2'
+                        reverse(reverse_url,
+                                kwargs={kwargs[0]: kwargs[1]}) + '?page=2'
                     )
                 else:
                     response = self.client_authorized.get(

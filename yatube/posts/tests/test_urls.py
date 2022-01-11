@@ -59,8 +59,10 @@ class NotStaticUrlTest(TestCase):
             f'/posts/{cls.post.id}/edit/': http.HTTPStatus.FOUND,
             '/create/': http.HTTPStatus.FOUND,
             '/follow/': http.HTTPStatus.FOUND,
-            f'/profile/{cls.auth_user.username}/follow/': http.HTTPStatus.FOUND,
-            f'/profile/{cls.auth_user.username}/unfollow/': http.HTTPStatus.FOUND,
+            f'/profile/{cls.auth_user.username}/follow/':
+                http.HTTPStatus.FOUND,
+            f'/profile/{cls.auth_user.username}/unfollow/':
+                http.HTTPStatus.FOUND,
             f'/posts/{cls.post.id}/comment': http.HTTPStatus.FOUND
 
         }
@@ -95,7 +97,9 @@ class NotStaticUrlTest(TestCase):
         for url, expected_value in self.urls_all_access.items():
             with self.subTest(url=url):
                 self.assertEqual(
-                    self.guest_client.get(url).status_code, expected_value, url)
+                    self.guest_client.get(url).status_code,
+                    expected_value,
+                    url)
 
     def test_url_limit_availability(self):
         """Проверка доступа к редактированнию

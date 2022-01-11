@@ -178,7 +178,7 @@ class CreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, http.HTTPStatus.OK)
-        self.assertEqual(Comment.objects.count(), tasks_count+1)
+        self.assertEqual(Comment.objects.count(), tasks_count + 1)
         self.assertTrue(
             Comment.objects.filter(
                 text=form_data['text'],
