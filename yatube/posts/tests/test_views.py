@@ -259,22 +259,22 @@ class TestCash(TestCase):
         )
         cls.reverse_index = reverse('posts:index')
 
-    def setUp(self):
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user_auth)
-
     def test_cash_index_page(self):
         """Тестирует работу кэширования на
         главной странице"""
 
-        response = self.authorized_client.get(self.reverse_index)
+        author = User.objects.create(username='auth111')
+        client = Client()
+        client.force_login(author)
+        response = client.get(self.reverse_index)
         content = response.content
-        self.post.delete()
-        content_2 = self.authorized_client.get(self.reverse_index).content
-        self.assertEqual(content, content_2)
+        Post.objects.create(
+            text='test',
+            author=author
+        )
+        self.assertEqual(content, client.get(self.reverse_index).content)
         cache.clear()
-        content_3 = self.authorized_client.get(self.reverse_index).content
-        self.assertNotEqual(content, content_3)
+        self.assertNotEqual(content, client.get(self.reverse_index).content)
 
 
 class TestFollow(TestCase):
