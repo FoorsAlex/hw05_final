@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.shortcuts import get_object_or_404
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -271,9 +270,11 @@ class TestCash(TestCase):
         response = self.authorized_client.get(self.reverse_index)
         content = response.content
         self.post.delete()
-        self.assertEqual(content, self.authorized_client.get(self.reverse_index).content)
+        content_2 = self.authorized_client.get(self.reverse_index).content
+        self.assertEqual(content, content_2)
         cache.clear()
-        self.assertNotEqual(content, self.authorized_client.get(self.reverse_index).content)
+        content_3 = self.authorized_client.get(self.reverse_index).content
+        self.assertNotEqual(content, content_3)
 
 
 class TestFollow(TestCase):
@@ -343,4 +344,4 @@ class TestFollow(TestCase):
         )
         follow = Follow.objects.filter(user=user, author=author).exists()
         self.assertTrue(follow)
-        self.assertEqual(Follow.objects.count(), follow_count+1)
+        self.assertEqual(Follow.objects.count(), follow_count + 1)

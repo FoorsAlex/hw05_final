@@ -73,7 +73,6 @@ class NotStaticUrlTest(TestCase):
             f'/profile/{cls.auth_user.username}/': 'posts/profile.html',
             f'/posts/{cls.post.id}/': 'posts/post_detail.html',
 
-
         }
         cls.templates_guest = {
             '/': 'posts/index.html',
@@ -107,8 +106,10 @@ class NotStaticUrlTest(TestCase):
           авторизированного пользователя,
           а также доступа к странице создания"""
 
-        response_authorized_edit = self.authorized_client.get(f'/posts/{self.post.pk}/edit/')
-        self.assertRedirects(response_authorized_edit, f'/posts/{self.post.pk}/',
+        response_authorized_edit = self.authorized_client.get(
+            f'/posts/{self.post.pk}/edit/')
+        self.assertRedirects(response_authorized_edit,
+                             f'/posts/{self.post.pk}/',
                              status_code=http.HTTPStatus.FOUND,
                              target_status_code=http.HTTPStatus.OK)
 
