@@ -38,9 +38,9 @@ def group_posts(request, slug):
 
 def profile(request, username):
     user = request.user
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     if user.is_authenticated:
-        following = User.objects.get(id=user.id).follower.filter(author=author)
+        following = Follow.objects.filter(user=user, author=author).exists()
     else:
         following = False
     post_list = Post.objects.filter(author__username=username)
@@ -61,7 +61,7 @@ def post_detail(request, post_id):
     post_list = Post.objects.filter(author__username=post.author)
     count_posts = post_list.count()
     comment_form = CommentForm()
-    comment_list = Comment.objects.filter(post__id=post_id)
+    comment_list = post.comments.all()
     context = {
         'post': post,
         'count_posts': count_posts,
@@ -99,7 +99,7 @@ def post_edit(request, post_id):
         files=request.FILES or None
     )
     if form.is_valid():
-        post.save()
+        form.save()
         return redirect('posts:post_detail', post_id=post_id)
     context = {
         'form': form,
@@ -145,6 +145,6 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
-        follower = Follow.objects.get(user=request.user, author=author)
+        follower = get_object_or_404(Follow, user=request.user, author=author)
         follower.delete()
     return redirect('posts:profile', username=username)

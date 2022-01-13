@@ -107,8 +107,8 @@ class NotStaticUrlTest(TestCase):
           авторизированного пользователя,
           а также доступа к странице создания"""
 
-        response_authorized_edit = self.authorized_client.get('/posts/1/edit/')
-        self.assertRedirects(response_authorized_edit, '/posts/1/',
+        response_authorized_edit = self.authorized_client.get(f'/posts/{self.post.pk}/edit/')
+        self.assertRedirects(response_authorized_edit, f'/posts/{self.post.pk}/',
                              status_code=http.HTTPStatus.FOUND,
                              target_status_code=http.HTTPStatus.OK)
 
