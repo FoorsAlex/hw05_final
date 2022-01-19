@@ -225,7 +225,7 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_three_records(self):
         """Проверка работы паджинатора 2-я страница"""
 
-        count_pages = self.count_post_obj-settings.COUNT_PAGE
+        count_pages = self.count_post_obj - settings.COUNT_PAGE
         reverse_list = {
             'posts:group_list': ('slug', self.group.slug),
             'posts:profile': ('username', self.user_auth.username),
