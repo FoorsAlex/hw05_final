@@ -158,9 +158,10 @@ class TestPages(TestCase):
             reverse('posts:post_detail', kwargs={'post_id': self.post.pk})
         )
         )
-        self.assertEqual(response.context.get('post').text, self.post.text)
-        self.assertEqual(response.context.get('post').group, self.group)
-        self.assertEqual(response.context.get('post').author, self.user_auth)
+        context = response.context.get('post')
+        self.assertEqual(context.text, self.post.text)
+        self.assertEqual(context.group, self.group)
+        self.assertEqual(context.author, self.user_auth)
         self.assertCountEqual(response.context.get('comments'), self.comments)
 
 
@@ -179,14 +180,14 @@ class PaginatorViewsTest(TestCase):
             slug='test_slug',
             description='Описание'
         )
-        count_post_obj = 13
+        cls.count_post_obj = 13
         object_post = [
             Post(
                 text=f'Текст {i}',
                 author=cls.user_auth,
                 group=cls.group
             )
-            for i in range(0, count_post_obj)
+            for i in range(0, cls.count_post_obj)
         ]
         Post.objects.bulk_create(object_post)
 
@@ -197,7 +198,7 @@ class PaginatorViewsTest(TestCase):
     def test_first_page_contains_ten_records(self):
         """Проверка работы паджинатора 1-я страница"""
 
-        count_pages = 10
+        count_pages = settings.COUNT_PAGE
         reverse_list = {
             'posts:group_list': ('slug', self.group.slug),
             'posts:profile': ('username', self.user_auth.username),
@@ -224,7 +225,7 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_three_records(self):
         """Проверка работы паджинатора 2-я страница"""
 
-        count_pages = 3
+        count_pages = self.count_post_obj-settings.COUNT_PAGE
         reverse_list = {
             'posts:group_list': ('slug', self.group.slug),
             'posts:profile': ('username', self.user_auth.username),
@@ -283,6 +284,8 @@ class TestFollow(TestCase):
     def setUp(self):
         self.authorized_user = User.objects.create(username='user')
         self.authorized_user_author = User.objects.create(username='author')
+        self.client_user = Client()
+        self.client_user.force_login(self.authorized_user)
         self.post = Post.objects.create(
             text='Текст',
             author=self.authorized_user_author
@@ -326,22 +329,18 @@ class TestFollow(TestCase):
 
     def test_unfollow(self):
         follow_count_1 = Follow.objects.count()
-        follow = Follow.objects.get(
-            user=self.authorized_user,
-            author=self.authorized_user_author
-        )
-        follow.delete()
+        self.client_user.get(
+            f'/profile/{self.authorized_user_author.username}/unfollow/')
         follow_count_2 = Follow.objects.count()
         self.assertEqual(follow_count_2, follow_count_1 - 1)
 
     def test_follow(self):
         user = User.objects.create(username='follower')
         author = User.objects.create(username='author1')
+        client_user = Client()
+        client_user.force_login(user)
         follow_count = Follow.objects.count()
-        Follow.objects.create(
-            user=user,
-            author=author
-        )
+        client_user.get(f'/profile/{author.username}/follow/')
         follow = Follow.objects.filter(user=user, author=author).exists()
         self.assertTrue(follow)
         self.assertEqual(Follow.objects.count(), follow_count + 1)
