@@ -39,8 +39,8 @@ def group_posts(request, slug):
 def profile(request, username):
     user = request.user
     author = get_object_or_404(User, username=username)
-    following = (user.is_authenticated and
-                 Follow.objects.filter(user=user, author=author).exists())
+    following = (user.is_authenticated
+                 and Follow.objects.filter(user=user, author=author).exists())
     post_list = Post.objects.filter(author__username=username)
     count_posts = post_list.count()
     page_obj = get_paginator_obj(request, post_list)
