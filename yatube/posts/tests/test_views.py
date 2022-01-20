@@ -329,8 +329,9 @@ class TestFollow(TestCase):
 
     def test_unfollow(self):
         follow_count_1 = Follow.objects.count()
-        self.client_user.get(
-            f'/profile/{self.authorized_user_author.username}/unfollow/')
+        reverse_adr = reverse('posts:profile_unfollow',
+                              args={self.authorized_user_author.username})
+        self.client_user.get(reverse_adr)
         follow_count_2 = Follow.objects.count()
         self.assertEqual(follow_count_2, follow_count_1 - 1)
 
@@ -340,7 +341,9 @@ class TestFollow(TestCase):
         client_user = Client()
         client_user.force_login(user)
         follow_count = Follow.objects.count()
-        client_user.get(f'/profile/{author.username}/follow/')
+        reverse_adr = reverse('posts:profile_follow',
+                              args={author.username})
+        client_user.get(reverse_adr)
         follow = Follow.objects.filter(user=user, author=author).exists()
         self.assertTrue(follow)
         self.assertEqual(Follow.objects.count(), follow_count + 1)
